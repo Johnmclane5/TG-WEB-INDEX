@@ -79,7 +79,6 @@ def serialize_file(file: dict) -> dict:
         "file_name": file.get("file_name"),
         "file_size": file.get("file_size"),
         "file_format": file.get("file_format"),
-        "date": date_val.strftime('%Y-%m-%d %H:%M:%S') if isinstance(date_val, datetime) else date_val or "",
         "telegram_link": file.get("telegram_link"),
         "channel_id": file.get("channel_id"),
         "message_id": file.get("message_id"),
@@ -114,7 +113,6 @@ def serialize_n_file(file: dict) -> dict:
         "file_name": file.get("file_name"),
         "file_size": file.get("file_size"),
         "file_format": file.get("file_format"),
-        "date": date_val.strftime('%Y-%m-%d %H:%M:%S') if isinstance(date_val, datetime) else date_val or "",
         "telegram_link": generate_telegram_link(
             BOT_USERNAME, file.get("channel_id"), file.get("message_id")
         ),
