@@ -425,14 +425,16 @@ async def stats_command(client, message: Message):
 async def tmdb_command(client, message):
     """
     Manually update a file's TMDB info in the database.
-    Usage: /tmdb <telegram_file_link> <tmdb_link>
+    Usage: /tmdb <telegram_file_link> <tmdb_link> [season] [episode]
     """
     if len(message.command) < 3:
-        await safe_api_call(message.reply_text("Usage: /tmdb <telegram_file_link> <tmdb_link>"))
+        await safe_api_call(message.reply_text("Usage: /tmdb <telegram_file_link> <tmdb_link> [season] [episode]"))
         return
 
     telegram_file_link = message.command[1]
     tmdb_link = message.command[2]
+    season = int(message.command[3]) if len(message.command) > 3 and message.command[3].isdigit() else None
+    episode = int(message.command[4]) if len(message.command) > 4 and message.command[4].isdigit() else None
 
     try:
         # Extract channel_id and message_id from telegram link
@@ -464,12 +466,14 @@ async def tmdb_command(client, message):
         await safe_api_call(message.reply_text(f"Failed to process file: {e}"))
         return
 
-    # Now update the file doc with TMDB info
+    # Now update the file doc with TMDB info, season, and episode
     try:
         await upsert_file_with_tmdb_info(
             file_info,
             tmdb_type,
             tmdb_id,
+            season,
+            episode,
             bot
         )
         await safe_api_call(message.reply_text("✅ File updated with TMDB info."))
