@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TG⚡️FLIX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #181a1b 0%, #23272b 100%);
+            color: #e0e0e0;
+            font-family: 'Montserrat', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #181a1b;
+            border-bottom: 1px solid #23272b;
+            box-shadow: 0 2px 8px #0004;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.7rem;
+            letter-spacing: 2px;
+            color: #7da0fa !important;
+        }
+
+        .poster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .poster-tile {
+            background: #23272b;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.18s, box-shadow 0.18s;
+            display: block;
+            padding: 0.5rem;
+            border: 2px solid transparent;
+        }
+
+        .poster-tile:hover {
+            transform: scale(1.045);
+            box-shadow: 0 8px 32px #0d6efd44;
+            z-index: 2;
+        }
+
+        .poster-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            background: #181a1b;
+            display: block;
+            border-radius: 0.7rem;
+            max-height: 350px;
+        }
+
+        .poster-tile:hover .poster-img {
+            filter: brightness(0.85) blur(1px);
+        }
+
+        .poster-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(0deg, #181a1be0 80%, #23272b00 100%);
+            color: #fff;
+            padding: 1.1rem 1rem 0.7rem 1rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .poster-tile:hover .poster-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .poster-title {
+            font-size: 1.13rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            text-shadow: 0 2px 8px #000a;
+        }
+
+        .poster-meta {
+            font-size: 0.98rem;
+            color: #7da0fa;
+            margin-bottom: 0.1rem;
+        }
+
+        .poster-rating {
+            font-size: 1.05rem;
+            color: #ffd700;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            background: #23272b;
+            color: #fff;
+            text-align: center;
+        }
+
+        .tmdb-meta {
+            font-size: 0.98rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .tmdb-poster-modal {
+            width: 100%;
+            max-width: 220px;
+            border-radius: 0.7rem;
+            margin-bottom: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .file-card {
+            background: #23272b;
+            border-radius: 0.7rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+            margin-bottom: 1rem;
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: stretch;
+            text-align: left;
+        }
+
+        .file-info-block {
+            min-width: 0;
+            margin-bottom: 0.2rem;
+            word-break: break-all;
+        }
+
+        .file-label {
+            font-size: 0.93em;
+            color: #7da0fa;
+            margin-bottom: 0.1em;
+            font-weight: 500;
+        }
+
+        .file-value {
+            color: #e0e0e0;
+            font-size: 1em;
+            word-break: break-all;
+        }
+
+        .file-name {
+            font-weight: 600;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .profile-card-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .profile-card {
+            background: #23272b;
+            border-radius: 0.7rem;
+            box-shadow: 0 2px 8px #0004;
+            width: 90px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+        }
+
+        .profile-card:hover {
+            background: #7da0fa;
+            color: #181818;
+            box-shadow: 0 4px 16px #7da0fa44;
+        }
+
+        .profile-img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: #23272b;
+            border-radius: 0.7rem 0.7rem 0 0;
+            display: block;
+        }
+
+        .profile-name {
+            font-size: 0.95rem;
+            color: inherit;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            padding: 0.4em 0.2em 0.5em 0.2em;
+            background: none;
+            white-space: normal;
+            /* allow wrapping */
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        @media (max-width: 576px) {
+            .poster-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.7rem;
+            }
+
+            .poster-img {
+                max-height: 200px;
+            }
+
+            .tmdb-poster-modal {
+                max-width: 100%;
+            }
+
+            .file-card {
+                padding: 0.7rem 0.5rem;
+            }
+
+            .profile-card {
+                width: 100px;
+            }
+
+            /* was 60px */
+            .profile-img {
+                width: 100%;
+                height: auto;
+            }
+
+            /* ensure image fills card */
+            .profile-name {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .file-card {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 0.7rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">TG⚡️FLIX</a>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light" type="button" id="menuDropdown" data-bs-toggle="dropdown"
+                        aria-expanded="false" style="border:none;background:none;">
+                        <span style="font-size:1.8rem;line-height:1;">
+                            &#9776;
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
+                        <li>
+                            <a class="dropdown-item" href="files.html">
+                                <span class="me-2">&#128194;</span>Browse N Files
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container py-4">
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3" id="sortBar">
+            <button class="btn btn-outline-info" id="sortRecentBtn">Recently Added</button>
+            <button class="btn btn-outline-info" id="sortTopRatedBtn">Top Rated</button>
+            <button class="btn btn-outline-info active" id="sortNewReleaseBtn">New Release</button>
+        </div>
+        <div class="mb-4 d-flex justify-content-center">
+            <input type="text" class="form-control w-50" id="searchInput" placeholder="Search by title...">
+        </div>
+        <div id="posterGrid" class="poster-grid"></div>
+        <div class="d-flex justify-content-center mt-3">
+            <button id="loadMoreBtn" class="btn btn-primary">Load More</button>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <div id="loadingSpinner" class="spinner-border text-primary" style="display:none" role="status"></div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <button id="filterBackBtn" class="btn btn-secondary" style="display:none;">Back</button>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="tmdbModal" tabindex="-1" aria-labelledby="tmdbModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tmdbModalLabel"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-column flex-md-row">
+                    <div class="flex-shrink-0 me-md-4 mb-3 mb-md-0 text-center">
+                        <img id="modalPoster" class="tmdb-poster-modal" src="" alt="Poster">
+                    </div>
+                    <div class="flex-grow-1">
+                        <div id="modalMeta"></div>
+                        <div id="modalStory" class="mb-3"></div>
+                        <div id="modalFiles" style="display:none"></div>
+                        <div class="d-flex flex-column align-items-center gap-2 mt-3">
+                            <button class="btn btn-outline-info" id="getFilesBtn">Get Files</button>
+                            <button class="btn btn-outline-secondary" id="backToInfoBtn" style="display:none">Back to
+                                Info</button>
+                        </div>
+                        <div id="modalBackBtn" class="mt-2 text-end"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiBase = "";
+        let allTmdbResults = [];
+        let offset = 0;
+        const limit = 10;
+        let hasMore = true;
+        let currentQuery = "";
+        let currentCast = "";
+        let currentDirector = "";
+        let currentGenre = "";
+
+        // Sorting state
+        let currentSort = "release_date";
+        let currentOrder = "desc";
+
+        let filterHistory = []; // replaces prevFilter
+
+        const posterGrid = document.getElementById('posterGrid');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const searchInput = document.getElementById('searchInput');
+
+        // Sort buttons
+        const sortRecentBtn = document.getElementById('sortRecentBtn');
+        const sortTopRatedBtn = document.getElementById('sortTopRatedBtn');
+        const sortNewReleaseBtn = document.getElementById('sortNewReleaseBtn');
+
+        function setActiveSortBtn(btn) {
+            [sortRecentBtn, sortTopRatedBtn, sortNewReleaseBtn].forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        sortRecentBtn.onclick = () => {
+            currentSort = "_id";
+            currentOrder = "desc";
+            setActiveSortBtn(sortRecentBtn);
+            loadAllTmdbFiles(true);
+        };
+        sortTopRatedBtn.onclick = () => {
+            currentSort = "rating";
+            currentOrder = "desc";
+            setActiveSortBtn(sortTopRatedBtn);
+            loadAllTmdbFiles(true);
+        };
+        sortNewReleaseBtn.onclick = () => {
+            currentSort = "release_date";
+            currentOrder = "desc";
+            setActiveSortBtn(sortNewReleaseBtn);
+            loadAllTmdbFiles(true);
+        };
+
+        loadMoreBtn.disabled = true;
+
+        function humanFileSize(bytes) {
+            if (!bytes) return '';
+            const thresh = 1024;
+            if (Math.abs(bytes) < thresh) return bytes + ' B';
+            const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            let u = -1;
+            do {
+                bytes /= thresh;
+                ++u;
+            } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+            return bytes.toFixed(1) + ' ' + units[u];
+        }
+
+        function getGenres(entry) {
+            if (Array.isArray(entry.genre)) return entry.genre;
+            if (typeof entry.genre === "string") return entry.genre.split(',').map(g => g.trim()).filter(Boolean);
+            return [];
+        }
+
+        function renderPosters(results, append = false) {
+            if (!append) posterGrid.innerHTML = "";
+            results.forEach((entry, idx) => {
+                const genres = getGenres(entry);
+                const div = document.createElement('div');
+                div.className = 'poster-tile fade-in';
+                div.tabIndex = 0;
+                div.setAttribute('role', 'button');
+                div.setAttribute('aria-label', entry.title || "Poster");
+                div.onclick = () => showTmdbModal(entry);
+                div.innerHTML = `
+                    <img class="poster-img" src="${entry.poster_url || 'https://i.ibb.co/qzmwLvx/No-Image-Available.jpg'}" alt="Poster">
+                    <div class="poster-overlay">
+                        <div class="poster-title">${entry.title || ''}</div>
+                        <div class="poster-meta">
+                            ${entry.release_date ? entry.release_date.slice(0, 4) : ''}
+                            ${entry.rating ? `<span class="poster-rating ms-2">${entry.rating}</span>` : ''}
+                        </div>
+                        <div class="poster-meta">${genres.length ? genres[0] : ''}</div>
+                    </div>
+                `;
+                posterGrid.appendChild(div);
+            });
+        }
+
+        const filterBackBtn = document.getElementById('filterBackBtn');
+
+        function updateFilterBackBtn() {
+            filterBackBtn.style.display = filterHistory.length > 0 ? 'block' : 'none';
+        }
+
+        filterBackBtn.onclick = function () {
+            if (filterHistory.length > 0) {
+                restorePrevFilter();
+            }
+        };
+
+        function showTmdbModal(entry) {
+            document.getElementById('tmdbModalLabel').textContent = entry.title || '';
+            document.getElementById('modalPoster').src = entry.poster_url || 'https://i.ibb.co/qzmwLvx/No-Image-Available.jpg';
+
+            // Director cards
+            let directorHtml = "";
+            if (entry.directors && entry.directors.length) {
+                directorHtml = `<div class="tmdb-meta"><strong>Directors:</strong><div class="profile-card-row">`;
+                entry.directors.forEach(director => {
+                    directorHtml += `
+                        <div class="profile-card director-badge" data-director="${encodeURIComponent(director.name)}">
+                            <img src="${director.profile_path || 'https://i.ibb.co/qzmwLvx/No-Image-Available.jpg'}" alt="${director.name}" class="profile-img">
+                            <div class="profile-name">${director.name}</div>
+                        </div>
+                    `;
+                });
+                directorHtml += `</div></div>`;
+            }
+
+            // Cast cards
+            let castHtml = "";
+            if (entry.stars && entry.stars.length) {
+                castHtml = `<div class="tmdb-meta"><strong>Stars:</strong><div class="profile-card-row">`;
+                entry.stars.forEach(star => {
+                    castHtml += `
+                        <div class="profile-card cast-badge" data-cast="${encodeURIComponent(star.name)}">
+                            <img src="${star.profile_path || 'https://i.ibb.co/qzmwLvx/No-Image-Available.jpg'}" alt="${star.name}" class="profile-img">
+                            <div class="profile-name">${star.name}</div>
+                        </div>
+                    `;
+                });
+                castHtml += `</div></div>`;
+            }
+
+            // Genre tags (clickable)
+            let genreHtml = "";
+            const genres = getGenres(entry);
+            if (genres.length) {
+                genreHtml = `<div class="tmdb-meta"><strong>Genre:</strong> `;
+                genres.forEach(genre => {
+                    genreHtml += `<span class="badge bg-info text-dark genre-badge" style="cursor:pointer;margin:0 2px;" data-genre="${encodeURIComponent(genre)}">${genre}</span>`;
+                });
+                genreHtml += `</div>`;
+            }
+
+            document.getElementById('modalMeta').innerHTML = `
+                <div class="tmdb-meta"><strong>Type:</strong> ${entry.tmdb_type || ''}</div>
+                <div class="tmdb-meta"><strong>Vote Average:</strong> ${entry.rating || ''}</div>
+                <div class="tmdb-meta"><strong>Language:</strong> ${entry.language || ''}</div>
+                ${genreHtml}
+                <div class="tmdb-meta"><strong>Release Date:</strong> ${entry.release_date || ''}</div>
+                ${directorHtml}
+                ${castHtml}
+                ${entry.trailer_url ? `<div class="tmdb-meta"><a href="${entry.trailer_url}" target="_blank" class="btn btn-outline-info btn-sm mt-1">Watch Trailer</a></div>` : ""}
+            `;
+            document.getElementById('modalStory').innerHTML = entry.story ? `<div><strong>Overview:</strong> ${entry.story}</div>` : "";
+
+            // Files
+            let filesHtml = "";
+            if (entry.files && entry.files.length) {
+                filesHtml = `
+                    <div class="mb-2"><strong>Files:</strong></div>
+                    ${entry.files.map(file => `
+                        <div class="file-card">
+                            <div class="file-info-block">
+                                <div class="file-value file-name">${file.file_name || ''}</div>
+                            </div>
+                            <div class="file-info-block">
+                                <div class="file-label">Size / Format</div>
+                                <div class="file-value">${humanFileSize(file.file_size) || ''}${file.file_format ? ' · ' + file.file_format : ''}</div>
+                            </div>
+                            <div class="file-info-block">
+                                <div class="file-label">Added On</div>
+                                <div class="file-value">${file.date || ''}</div>
+                            </div>
+                            <div class="file-info-block">
+                                <div class="file-value">
+                                    <a class="btn btn-success btn-sm" href="${file.telegram_link}" target="_blank">Send</a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                filesHtml = `<div class="text-muted">No files available.</div>`;
+            }
+            document.getElementById('modalFiles').innerHTML = filesHtml;
+            document.getElementById('modalFiles').style.display = "none";
+            document.getElementById('modalMeta').style.display = "";
+            document.getElementById('modalStory').style.display = "";
+            document.getElementById('getFilesBtn').style.display = "";
+            document.getElementById('backToInfoBtn').style.display = "none";
+
+            // Always show Back button
+            document.getElementById('modalBackBtn').innerHTML = `<button class="btn btn-secondary" id="modalBackFilterBtn">Back</button>`;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('tmdbModal'));
+            modal.show();
+
+            setTimeout(() => {
+                document.querySelectorAll('.genre-badge').forEach(el => {
+                    el.onclick = function () {
+                        const genreName = decodeURIComponent(this.getAttribute('data-genre'));
+                        setPrevFilter();
+                        filterBy('genre', genreName);
+                        modal.hide();
+                    };
+                });
+                document.querySelectorAll('.cast-badge').forEach(el => {
+                    el.onclick = function () {
+                        const castName = decodeURIComponent(this.getAttribute('data-cast'));
+                        setPrevFilter();
+                        filterBy('cast', castName);
+                        modal.hide();
+                    };
+                });
+                document.querySelectorAll('.director-badge').forEach(el => {
+                    el.onclick = function () {
+                        const directorName = decodeURIComponent(this.getAttribute('data-director'));
+                        setPrevFilter();
+                        filterBy('director', directorName);
+                        modal.hide();
+                    };
+                });
+                const backBtn = document.getElementById('modalBackFilterBtn');
+                if (backBtn) {
+                    backBtn.disabled = false;
+                    backBtn.onclick = function () {
+                        modal.hide();
+                    };
+                }
+                // Get Files and Back to Info buttons
+                document.getElementById('getFilesBtn').onclick = function () {
+                    document.getElementById('modalMeta').style.display = "none";
+                    document.getElementById('modalStory').style.display = "none";
+                    document.getElementById('modalFiles').style.display = "";
+                    document.getElementById('getFilesBtn').style.display = "none";
+                    document.getElementById('backToInfoBtn').style.display = "";
+                };
+                document.getElementById('backToInfoBtn').onclick = function () {
+                    document.getElementById('modalMeta').style.display = "";
+                    document.getElementById('modalStory').style.display = "";
+                    document.getElementById('modalFiles').style.display = "none";
+                    document.getElementById('getFilesBtn').style.display = "";
+                    document.getElementById('backToInfoBtn').style.display = "none";
+                };
+            }, 100);
+        }
+
+        function setPrevFilter() {
+            // Push a copy of the current filter state
+            filterHistory.push({
+                currentQuery,
+                currentCast,
+                currentDirector,
+                currentGenre,
+                offset
+            });
+            updateFilterBackBtn();
+        }
+
+        function restorePrevFilter() {
+            if (filterHistory.length === 0) return;
+            const prev = filterHistory.pop();
+            currentQuery = prev.currentQuery;
+            currentCast = prev.currentCast;
+            currentDirector = prev.currentDirector;
+            currentGenre = prev.currentGenre;
+            offset = prev.offset;
+            loadAllTmdbFiles(true);
+            updateFilterBackBtn();
+        }
+
+        function filterBy(type, value) {
+            offset = 0;
+            currentQuery = "";
+            currentCast = "";
+            currentDirector = "";
+            currentGenre = "";
+            if (type === 'genre') currentGenre = value;
+            if (type === 'cast') currentCast = value;
+            if (type === 'director') currentDirector = value;
+            loadAllTmdbFiles(true);
+        }
+
+        async function loadAllTmdbFiles(reset = false) {
+            if (reset) {
+                offset = 0;
+                allTmdbResults = [];
+                posterGrid.innerHTML = "";
+                hasMore = true;
+            }
+            if (!hasMore) return;
+            loadMoreBtn.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+            try {
+                const url = new URL(`${apiBase}/api/all-tmdb-files`);
+                url.searchParams.set("offset", offset);
+                url.searchParams.set("limit", limit);
+                url.searchParams.set("sort", currentSort);
+                url.searchParams.set("order", currentOrder);
+                if (currentQuery) url.searchParams.set("q", currentQuery);
+                if (currentCast) url.searchParams.set("cast", currentCast);
+                if (currentDirector) url.searchParams.set("director", currentDirector);
+                if (currentGenre) url.searchParams.set("genre", currentGenre);
+
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error("API error");
+                const data = await resp.json();
+                const newResults = data.results || [];
+                if (reset) {
+                    allTmdbResults = newResults;
+                    posterGrid.innerHTML = "";
+                } else {
+                    allTmdbResults = allTmdbResults.concat(newResults);
+                }
+                renderPosters(newResults, !reset);
+                offset += limit;
+                hasMore = data.has_more;
+                loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+                loadMoreBtn.disabled = !hasMore;
+            } catch (e) {
+                alert("Failed to load TMDB data.");
+            } finally {
+                loadingSpinner.style.display = 'none';
+                updateFilterBackBtn();
+            }
+        }
+
+        searchInput.addEventListener('input', () => {
+            currentQuery = searchInput.value.trim();
+            currentCast = "";
+            currentDirector = "";
+            currentGenre = "";
+            filterHistory = [];
+            loadAllTmdbFiles(true);
+        });
+
+        loadMoreBtn.addEventListener('click', () => {
+            loadAllTmdbFiles(false);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setActiveSortBtn(sortNewReleaseBtn); // default
+            loadAllTmdbFiles(true);
+        });
+    </script>
+    <!-- About & Social Section -->
+    <footer class="container mt-5 mb-4">
+        <hr style="border-color:#23272b;">
+        <div class="text-center">
+            <h5 class="mb-2" style="color:#7da0fa;">About TG⚡️FLIX</h5>
+            <p style="color:#b0b8c1;max-width:600px;margin:0 auto;">
+                TG⚡️FLIX is build with love for Telegram users to easily browse and discover TMDB-based content.
+            <div class="mt-3">
+                <a href="https://t.me/your_channel" target="_blank" class="btn btn-outline-info btn-sm me-2"
+                    style="min-width:120px;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram"
+                        style="width:1.2em;vertical-align:middle;margin-right:6px;filter:invert(60%);">
+                    For Updates
+                </a>
+                <a href="https://t.me/your_support" target="_blank" class="btn btn-outline-secondary btn-sm me-2"
+                    style="min-width:120px;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram"
+                        style="width:1.2em;vertical-align:middle;margin-right:6px;filter:invert(40%);">
+                    Contact support
+                </a>
+                <!--
+                <a href="https://github.com/your_github" target="_blank" class="btn btn-outline-light btn-sm"
+                    style="min-width:120px;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub"
+                        style="width:1.2em;vertical-align:middle;margin-right:6px;filter:invert(80%);">
+                    GitHub
+                </a>
+                -->
+            </div>
+            <div class="mt-3" style="color:#6c757d;font-size:0.95em;">
+                &copy; 2025 TG⚡️FLIX. Not affiliated with Telegram or TMDB.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
