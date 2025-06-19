@@ -4,6 +4,7 @@ import asyncio
 from config import TMDB_API_KEY, logger
 from imdb import IMDb
 
+
 POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original'
 PROFILE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
 
@@ -113,8 +114,20 @@ async def get_by_id(tmdb_type, tmdb_id, season=None, episode=None):
             genres = extract_genres(data)
             release_date = extract_release_date(data)
 
+            imdb_id = data.get('imdb_id')
+            # For TV, fetch imdb_id if not present
+            if tmdb_type == 'tv' and not imdb_id:
+                imdb_id = await get_tv_imdb_id(data.get('id'))
+            plot = ""
+            if imdb_id:
+                plot = await asyncio.to_thread(get_imdb_plot, imdb_id)
+            if not plot:
+                plot = data.get('overview', '')
+
+
             message = await format_tmdb_info(
-                tmdb_type, season, episode, directors_str, stars_str, data
+                tmdb_type, season, episode, 
+                directors_str, stars_str, data, plot
             )
 
             mongo_dict = {
@@ -125,7 +138,7 @@ async def get_by_id(tmdb_type, tmdb_id, season=None, episode=None):
                 "language": language,
                 "genre": genres,
                 "release_date": release_date,
-                "story": data.get('overview'),
+                "story": plot or data.get('overview'),
                 "directors": directors_list,
                 "stars": stars_list,
                 "trailer_url": trailer_url,
@@ -166,17 +179,7 @@ def get_imdb_plot(imdb_id):
         logger.error(f"Error fetching IMDb plot: {e}")
         return ""
 
-async def format_tmdb_info(tmdb_type, season, episode, directors_str, stars_str, data):
-    imdb_id = data.get('imdb_id')
-    # For TV, fetch imdb_id if not present
-    if tmdb_type == 'tv' and not imdb_id:
-        imdb_id = await get_tv_imdb_id(data.get('id'))
-    plot = ""
-    if imdb_id:
-        plot = await asyncio.to_thread(get_imdb_plot, imdb_id)
-    if not plot:
-        plot = data.get('overview', '')
-
+async def format_tmdb_info(tmdb_type, season, episode, directors_str, stars_str, data, plot):
     # Title and year/season/episode
     if tmdb_type == 'movie':
         title = data.get('title', '')
