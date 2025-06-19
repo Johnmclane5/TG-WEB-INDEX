@@ -451,4 +451,27 @@ async def upsert_file_with_tmdb_info(file_info, tmdb_type, tmdb_id, season, epis
         except Exception as e:
             logger.error(f" info error {e}")
 
+async def delete_expired_auth_users():
+    """
+    Delete expired auth users from auth_users_col using 'expiry' field.
+    """
+    now = datetime.now(timezone.utc)
+    result = await auth_users_col.delete_many({"expiry": {"$lt": now}})
+    logger.info(f"Deleted {result.deleted_count} expired auth users.")
 
+async def delete_expired_tokens():
+    """
+    Delete expired tokens from tokens_col using 'expiry' field.
+    """
+    now = datetime.now(timezone.utc)
+    result = await tokens_col.delete_many({"expiry": {"$lt": now}})
+    logger.info(f"Deleted {result.deleted_count} expired tokens.")
+
+async def periodic_expiry_cleanup(interval_seconds=3600 * 4):
+    """
+    Periodically delete expired auth users and tokens.
+    """
+    while True:
+        await delete_expired_auth_users()
+        await delete_expired_tokens()
+        await asyncio.sleep(interval_seconds)

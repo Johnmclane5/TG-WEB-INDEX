@@ -20,8 +20,9 @@ from utility import (
     generate_token, shorten_url, get_token_link, extract_channel_and_msg_id,
     safe_api_call, get_allowed_channels, extract_file_info,
     delete_after_delay, queue_file_for_processing, file_queue_worker,
-    extract_tmdb_link, file_handler, remove_unwanted
-)
+    extract_tmdb_link, file_handler, remove_unwanted,
+    periodic_expiry_cleanup
+    )
 from db import db, users_col, tokens_col, files_col, allowed_channels_col, auth_users_col
 from fast_api import api
 from utility import upsert_file_with_tmdb_info
@@ -487,6 +488,7 @@ async def main():
     await bot.start()
     bot.loop.create_task(start_fastapi())
     bot.loop.create_task(file_queue_worker(bot))  # Start the queue worker
+    bot.loop.create_task(periodic_expiry_cleanup())
 
     # Send startup message to log channel
     try:
