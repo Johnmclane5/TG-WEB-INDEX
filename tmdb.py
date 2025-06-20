@@ -147,7 +147,7 @@ async def get_by_id(tmdb_type, tmdb_id, season=None, episode=None):
             return {
                 "message": message,
                 "poster_url": poster_url,
-                "backdrop_url": backdrop_url,
+                "backdrop_url": backdrop_url or poster_url,
                 "trailer_url": trailer_url,
                 "mongo_dict": mongo_dict
             }
